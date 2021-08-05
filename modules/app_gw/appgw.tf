@@ -8,7 +8,7 @@ locals {
   redirect_configuration_name    = "${var.virtual_network_name}-rdrcfg"
 }
 
-resource "azurerm_application_gateway" "network" {
+resource "azurerm_application_gateway" "agw" {
   name                = var.appgw_name
   resource_group_name = var.resource_group_name
   location            = var.location
@@ -29,6 +29,12 @@ resource "azurerm_application_gateway" "network" {
     port = 80
   }
 
+  # frontend_port {
+  #   name     = "https-443"
+  #   port     = 443
+  #   protocol = "Https"
+  # }
+
   frontend_ip_configuration {
     name                 = local.frontend_ip_configuration_name
     public_ip_address_id = var.appgw_pip
@@ -41,7 +47,7 @@ resource "azurerm_application_gateway" "network" {
   backend_http_settings {
     name                  = local.http_setting_name
     cookie_based_affinity = "Disabled"
-    # path                  = "/path1/"
+    path                  = "/path1/"
     port                  = 80
     protocol              = "Http"
     request_timeout       = 60
@@ -90,9 +96,9 @@ variable "appgw_pip" {
 }
 
 output "gateway_name" {
-  value = azurerm_application_gateway.network.name
+  value = azurerm_application_gateway.agw.name
 }
 
 output "gateway_id" {
-  value = azurerm_application_gateway.network.id
+  value = azurerm_application_gateway.agw.id
 }

@@ -1,7 +1,7 @@
 # Variables for Spoke/LZ 
 
 variable "tags" {
-   type        = map(string)
+  type = map(string)
 
   default = {
     project = "spoke-lz"
