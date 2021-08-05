@@ -2,7 +2,7 @@
 
 resource "azurerm_subnet" "appgw" {
   name                                           = "appgwSubnet"
-  resource_group_name                            = azurerm_resource_group.rg.name
+  resource_group_name                            = azurerm_resource_group.net-rg.name
   virtual_network_name                           = azurerm_virtual_network.vnet.name
   address_prefixes                               = ["10.1.1.0/24"]
   # enforce_private_link_endpoint_network_policies = false
@@ -11,18 +11,18 @@ resource "azurerm_subnet" "appgw" {
 
 resource "azurerm_public_ip" "appgw" {
   name                = "appgw-pip"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.net-rg.name
+  location            = azurerm_resource_group.net-rg.location
   allocation_method   = "Static"
   sku                 = "Standard"
 }
 
 module "appgw" {
-  source = "../../modules/app_gw"
+  source = "./modules/app_gw"
 
-  resource_group_name  = azurerm_resource_group.rg.name
+  resource_group_name  = azurerm_resource_group.net-rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
-  location             = azurerm_resource_group.rg.location
+  location             = azurerm_resource_group.net-rg.location
   appgw_name           = "lzappgw"
   frontend_subnet      = azurerm_subnet.appgw.id
   appgw_pip            = azurerm_public_ip.appgw.id

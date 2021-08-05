@@ -12,19 +12,18 @@ data "terraform_remote_state" "existing-hub" {
   }
 }
 
-# Resource Group for Landing Zone
-# This RG uses the same region location as the Hub. 
-resource "azurerm_resource_group" "rg" {
-  name     = "${var.lz_prefix}-rg"
-  location = data.terraform_remote_state.existing-hub.outputs.rg_location
+# Variables for Spoke/LZ 
+
+variable "tags" {
+  type = map(string)
+
+  default = {
+    project = "spoke-lz"
+  }
 }
 
-output "lz_rg_location" {
-  value = azurerm_resource_group.rg.location
-}
-
-output "lz_rg_name" {
-  value = azurerm_resource_group.rg.name
+variable "lz_prefix" {
+  default = "escs-lz01"
 }
 
 

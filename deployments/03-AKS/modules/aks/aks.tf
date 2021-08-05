@@ -37,15 +37,10 @@ resource "azurerm_kubernetes_cluster" "akscluster" {
   network_profile {
     network_plugin = "azure"
     # network_policy = "azure"
-    # load_balancer_sku = "Standard"
     outbound_type = "userDefinedRouting"
     dns_service_ip = "192.168.100.10"
     service_cidr = "192.168.100.0/24"
     docker_bridge_cidr = "172.17.0.1/16"
-
-    # load_balancer_profile {
-    #   managed_outbound_ip_count = 1
-    # }
 
   }
 
@@ -60,30 +55,21 @@ resource "azurerm_kubernetes_cluster" "akscluster" {
 
   identity {
     type                      = "UserAssigned"
-    user_assigned_identity_id = var.mi_aks_id
+    user_assigned_identity_id = var.mi_aks_cp_id
   }
 
-
-
-
-  # linux_profile {
-  #   admin_username = "sysadmin"
-
-  #   ssh_key {
-  #     key_data = file(var.public_ssh_key_path)
-  #   }
-
-  # }
-
-  # windows_profile {
-  #   admin_username = "sysadmin"
-  #   admin_password = var.admin_password
-    
-  #   }
 }
 
 output "aks_id" {
   value = azurerm_kubernetes_cluster.akscluster.id
+}
+
+output "kubelet_id" {
+  value = azurerm_kubernetes_cluster.akscluster.kubelet_identity[0].object_id
+}
+
+output "node_pool_rg" {
+  value = azurerm_kubernetes_cluster.akscluster.node_resource_group
 }
 
 # Created additional Windows Node pool

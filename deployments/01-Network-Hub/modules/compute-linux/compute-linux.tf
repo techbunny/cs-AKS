@@ -28,13 +28,6 @@ resource "azurerm_linux_virtual_machine" "compute" {
     }
   }
 
-  # admin_ssh_key {
-  #   username = var.admin_username
-  #   # public_key = file("~/.ssh/id_rsa.pub")
-  #   public_key =  file(var.admin_ssh_key)
-  # }
-
-
   source_image_reference {
     publisher = var.os_publisher
     offer     = var.os_offer
@@ -72,9 +65,7 @@ variable "admin_username" {
 
 variable "admin_password" {
 }
-# variable "admin_ssh_key" {
-#   default = null
-# }
+
 variable "server_name" {
 
 }
@@ -103,7 +94,7 @@ variable "disable_password_authentication" {
   default = false
 }
 variable "enable_accelerated_networking" {
-  default = "true"
+  default = "false"
 }
 variable "storage_account_type" {
   default = "Standard_LRS"

@@ -1,9 +1,25 @@
+# Resource Group for Landing Zone Networking
+# This RG uses the same region location as the Hub. 
+resource "azurerm_resource_group" "net-rg" {
+  name     = "${var.lz_prefix}-rg"
+  location = data.terraform_remote_state.existing-hub.outputs.hub_rg_location
+}
+
+output "lz_rg_location" {
+  value = azurerm_resource_group.net-rg.location
+}
+
+output "lz_rg_name" {
+  value = azurerm_resource_group.net-rg.name
+}
+
+
 # Virtual Network
 
 resource "azurerm_virtual_network" "vnet" {
   name                = "vnet-${var.lz_prefix}"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.net-rg.name
+  location            = azurerm_resource_group.net-rg.location
   address_space       = ["10.1.0.0/16"]
   dns_servers         = null
   tags                = var.tags
@@ -22,8 +38,8 @@ output "lz_vnet_id" {
 # (All subnets in the landing zone will need to connect to this Route Table)
 resource "azurerm_route_table" "route_table" {
   name                          = "rt-${var.lz_prefix}"
-  resource_group_name           = azurerm_resource_group.rg.name
-  location                      = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.net-rg.name
+  location            = azurerm_resource_group.net-rg.location
   disable_bgp_route_propagation = false
 
   route {
@@ -47,7 +63,7 @@ output "lz_rt_id" {
 # Spoke to Hub
 resource "azurerm_virtual_network_peering" "direction1" {
   name                         = "${azurerm_virtual_network.vnet.name}-to-${data.terraform_remote_state.existing-hub.outputs.hub_vnet_name}"
-  resource_group_name          = azurerm_resource_group.rg.name
+  resource_group_name          = azurerm_resource_group.net-rg.name
   virtual_network_name         = azurerm_virtual_network.vnet.name
   remote_virtual_network_id    = data.terraform_remote_state.existing-hub.outputs.hub_vnet_id
   allow_virtual_network_access = true
@@ -60,7 +76,7 @@ resource "azurerm_virtual_network_peering" "direction1" {
 # Hub to Spoke
 resource "azurerm_virtual_network_peering" "direction2" {
   name                         = "${data.terraform_remote_state.existing-hub.outputs.hub_vnet_name}-to-${azurerm_virtual_network.vnet.name}"
-  resource_group_name          = data.terraform_remote_state.existing-hub.outputs.rg_name
+  resource_group_name          = data.terraform_remote_state.existing-hub.outputs.hub_rg_name
   virtual_network_name         = data.terraform_remote_state.existing-hub.outputs.hub_vnet_name
   remote_virtual_network_id    = azurerm_virtual_network.vnet.id
   allow_virtual_network_access = true

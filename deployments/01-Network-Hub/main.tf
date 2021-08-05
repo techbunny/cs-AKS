@@ -1,11 +1,17 @@
-# Resource Group for Hub Deployment
+#############
+# RESOURCES #
+#############
+
+# Resource Group for Hub
+# ----------------------
 
 resource "azurerm_resource_group" "rg" {
   name     = "${var.hub_prefix}-rg"
   location = var.location
 }
 
-# Virtual Network
+# Virtual Network for Hub
+# -----------------------
 
 resource "azurerm_virtual_network" "vnet" {
   name                = "vnet-${var.hub_prefix}"
@@ -16,6 +22,9 @@ resource "azurerm_virtual_network" "vnet" {
   tags                = var.tags
 
 }
+
+# SUBNETS on Hub Network
+# ----------------------
 
 # Firewall Subnet
 # (Additional subnet for Azure Firewall, without NSG as per Firewall requirements)
@@ -39,18 +48,19 @@ resource "azurerm_subnet" "gateway" {
 
 }
 
-# # Bastion - Module creates additional subnet (without NSG), public IP and Bastion
-# module "bastion" {
-#   source = "../../modules/bastion"
+# Bastion - Module creates additional subnet (without NSG), public IP and Bastion
+module "bastion" {
+  source = "./modules/bastion"
 
-#   subnet_cidr          = "10.0.3.0/26"
-#   virtual_network_name = azurerm_virtual_network.vnet.name
-#   resource_group_name  = azurerm_resource_group.rg.name
-#   location             = azurerm_resource_group.rg.location
+  subnet_cidr          = "10.0.3.0/26"
+  virtual_network_name = azurerm_virtual_network.vnet.name
+  resource_group_name  = azurerm_resource_group.rg.name
+  location             = azurerm_resource_group.rg.location
 
-# }
+}
 
-# Azure Firewall - Module will create Firewall, Public IP Address
+# Azure Firewall 
+# --------------
 # Firewall Rules created via Module
 
 resource "azurerm_firewall" "firewall" {
@@ -75,22 +85,43 @@ resource "azurerm_public_ip" "firewall" {
 }
 
 module "firewall_rules_aks" {
-  source = "../../modules/firewall/AKS-rules"
+  source = "./modules/aks-fw-rules"
 
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
 }
 
+#############
+# VARIABLES #
+#############
 
+variable "location" {
+}
+
+variable "tags" {
+  type = map(string)
+
+  default = {
+    project = "cs-aks"
+  }
+}
+
+variable "hub_prefix" {
+
+}
+
+
+#############
 ## OUTPUTS ##
+#############
 # These outputs are used by later deployments
 
-output "rg_location" {
+output "hub_rg_location" {
   value = var.location
 }
 
-output "rg_name" {
+output "hub_rg_name" {
   value = azurerm_resource_group.rg.name
 }
 
