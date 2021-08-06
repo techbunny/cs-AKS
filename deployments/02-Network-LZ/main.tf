@@ -1,15 +1,15 @@
 # Data From Existing Infrastructure
 
 data "terraform_remote_state" "existing-hub" {
-  backend = "remote"
+  backend = "azurerm"
 
   config = {
-    organization = "jcroth"
-
-    workspaces = {
-      name = "cs-aks-hub"
-    }
+    storage_account_name = "escstfstate"
+    container_name       = "escs"
+    key                  = "hub-net"
+    access_key = var.access_key
   }
+
 }
 
 # Variables for Spoke/LZ 
@@ -24,6 +24,10 @@ variable "tags" {
 
 variable "lz_prefix" {
   default = "escs-lz01"
+}
+
+variable "access_key" {
+  
 }
 
 

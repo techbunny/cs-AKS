@@ -100,7 +100,7 @@ variable "storage_account_type" {
   default = "Standard_LRS"
 }
 variable "vm_size" {
-  default = "Standard_D2s_V3"
+  default = "Standard_D2s_v3"
 }
 variable "tags" {
   type = map(string)

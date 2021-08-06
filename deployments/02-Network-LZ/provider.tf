@@ -6,12 +6,20 @@ terraform {
     }
 
   }
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "jcroth"
-    workspaces {
-      name = "cs-aks-lz"
-    }
+  
+  # backend "remote" {
+  #   hostname     = "app.terraform.io"
+  #   organization = "jcroth"
+  #   workspaces {
+  #     name = "cs-aks-lz"
+  #   }
+  # }
+
+  backend "azurerm" {
+    resource_group_name  = "tfstate"
+    storage_account_name = "escstfstate"
+    container_name       = "escs"
+    key                  = "lz-net"
   }
 }
 

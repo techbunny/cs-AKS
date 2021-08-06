@@ -7,18 +7,23 @@ terraform {
 
   }
 
-  backend "remote" {
-    hostname     = "app.terraform.io"
-    organization = "jcroth"
-    workspaces {
-      name = "cs-aks-hub"
-    }
+  backend "azurerm" {
+    resource_group_name  = "tfstate"
+    storage_account_name = "escstfstate"
+    container_name       = "escs"
+    key                  = "hub-net"
   }
+
+  # backend "remote" {
+  #   hostname     = "app.terraform.io"
+  #   organization = "jcroth"
+  #   workspaces {
+  #     name = "cs-aks-hub"
+  #   }
+  # }
 }
 
 provider "azurerm" {
-  # subscription_id = var.subscription_id
-  # tenant_id       = var.tenant_id
   features {}
 }
 
